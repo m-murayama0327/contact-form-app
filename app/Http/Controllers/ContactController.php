@@ -4,7 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\StoreContactRequest;
 use App\Models\Category;
+use App\Models\Contact;
 use App\Models\Tag;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ContactController extends Controller
@@ -27,5 +31,22 @@ class ContactController extends Controller
         $request->flash();
 
         return view('contact.confirm', compact('validated', 'category', 'tags'));
+    }
+
+    public function store(StoreContactRequest $request): RedirectResponse
+    {
+        $validated = $request->validated();
+
+        DB::transaction(function () use ($validated) {
+            $contact = Contact::create(Arr::except($validated, 'tag_ids'));
+            $contact->tags()->attach($validated['tag_ids'] ?? []);
+        });
+
+        return redirect('/thanks');
+    }
+
+    public function thanks(): View
+    {
+        return view('contact.thanks');
     }
 }
