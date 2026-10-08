@@ -5,12 +5,13 @@ namespace Tests\Feature;
 use App\Models\Category;
 use App\Models\Contact;
 use App\Models\Tag;
-use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\LogsInAsAdmin;
 use Tests\TestCase;
 
 class AdminTest extends TestCase
 {
+    use LogsInAsAdmin;
     use RefreshDatabase;
 
     public function test_guest_is_redirected_to_login(): void
@@ -123,10 +124,5 @@ class AdminTest extends TestCase
         $response->assertRedirect('/admin');
         $this->assertDatabaseMissing('contacts', ['id' => $contact->id]);
         $this->assertDatabaseMissing('contact_tag', ['contact_id' => $contact->id]);
-    }
-
-    private function loginAsAdmin(): void
-    {
-        $this->actingAs(User::factory()->create());
     }
 }
