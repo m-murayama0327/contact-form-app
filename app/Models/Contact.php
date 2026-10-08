@@ -12,6 +12,12 @@ class Contact extends Model
 {
     use HasFactory;
 
+    public const GENDER_LABELS = [
+        1 => '男性',
+        2 => '女性',
+        3 => 'その他',
+    ];
+
     protected $fillable = [
         'category_id',
         'first_name',

@@ -6,6 +6,13 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class ExportContactRequest extends FormRequest
 {
+    /**
+     * バリデーションエラーのときは、エクスポートのボタンがある管理画面に戻す
+     *
+     * @var string
+     */
+    protected $redirect = '/admin';
+
     public function authorize(): bool
     {
         return true;
