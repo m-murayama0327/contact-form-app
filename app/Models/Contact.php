@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -31,5 +32,23 @@ class Contact extends Model
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(Tag::class)->withTimestamps();
+    }
+
+    /**
+     * @param  array<string, mixed>  $filters
+     */
+    public function scopeSearch(Builder $query, array $filters): Builder
+    {
+        return $query
+            ->when($filters['keyword'] ?? null, function (Builder $query, string $keyword) {
+                $query->where(function (Builder $query) use ($keyword) {
+                    $query->where('first_name', 'like', "%{$keyword}%")
+                        ->orWhere('last_name', 'like', "%{$keyword}%")
+                        ->orWhere('email', 'like', "%{$keyword}%");
+                });
+            })
+            ->when($filters['gender'] ?? null, fn (Builder $query, string $gender) => $query->where('gender', $gender))
+            ->when($filters['category_id'] ?? null, fn (Builder $query, string $categoryId) => $query->where('category_id', $categoryId))
+            ->when($filters['date'] ?? null, fn (Builder $query, string $date) => $query->whereDate('created_at', $date));
     }
 }
